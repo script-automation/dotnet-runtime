@@ -1,0 +1,77 @@
+name: Build for 8.0-alpine
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+  push:
+    branches: [ "main" ]
+
+env:
+  DH_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/dotnet-runtime
+  BASE_IMAGE: mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine dotnet version
+        run: |
+          docker pull ${{ env.BASE_IMAGE }}
+          export ver=$(docker run --rm ${{ env.BASE_IMAGE }} sh -c "dotnet --info | grep Version | grep -oE '[0-9.]+'")
+          echo VERSION=$ver >> $GITHUB_ENV
+          echo VERSION_TAG=$ver-alpine >> $GITHUB_ENV
+          echo VERSION=$ver, VERSION_TAG=$ver-alpine
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Check if image exists
+        run: |
+          echo CONTINUE=1 >> $GITHUB_ENV
+          docker buildx imagetools inspect "${{ env.DH_IMAGE_NAME }}:${{ env.VERSION_TAG }}" > /dev/null ; export exist=$?
+          if [[ $exist == 1 ]]
+          then
+            echo continue build process
+          else
+            echo CONTINUE=0 >> $GITHUB_ENV
+            echo skipped, image of "${{ env.DH_IMAGE_NAME }}:${{ env.VERSION_TAG }}" already exist
+          fi
+        continue-on-error: true
+
+      - name: Create self-signed certificate
+        run: |
+          if [[ ${{ env.CONTINUE }} == 1 ]]
+          then
+            openssl req -x509 -newkey rsa:4096 -nodes -out server.crt -keyout server.key -days 3650 -subj "/CN=localhost"
+            openssl pkcs12 -export -inkey server.key -in server.crt -passout pass:root -out server.pfx
+          fi
+
+      - name: Build Image
+        run: |
+          if [[ ${{ env.CONTINUE }} == 1 ]]
+          then
+            docker build . --pull \
+              -f ./8.0-alpine/Dockerfile \
+              -t ${{ env.DH_IMAGE_NAME }}:${{ env.VERSION_TAG }} \
+              -t ${{ env.DH_IMAGE_NAME }}:8.0-alpine
+          fi
+
+      - name: Push Image to DockerHub
+        run: |
+          if [[ ${{ env.CONTINUE }} == 1 ]]
+          then
+            docker push ${{ env.DH_IMAGE_NAME }}:${{ env.VERSION_TAG }}
+            docker push ${{ env.DH_IMAGE_NAME }}:8.0-alpine
+          fi
