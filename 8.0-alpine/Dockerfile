@@ -1,5 +1,16 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
 
+# Enable globalization and time zones:
+# https://github.com/dotnet/dotnet-docker/blob/main/samples/enable-globalization.md
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
+RUN apk add --no-cache \
+    icu-data-full \
+    icu-libs \
+    tzdata
+
 # ENV ASPNETCORE_URLS=https://+;http://+
 ENV ASPNETCORE_HTTP_PORTS=8080
 ENV ASPNETCORE_HTTPS_PORTS=8443
