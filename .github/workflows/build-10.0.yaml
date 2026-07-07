@@ -27,7 +27,7 @@ jobs:
       - name: Create self-signed certificate
         run: |
           openssl req -x509 -newkey rsa:4096 -nodes -out server.crt -keyout server.key -days 3650 -subj "/CN=localhost"
-          openssl pkcs12 -export -inkey server.key -in server.crt -passout pass:root -out server.pfx
+          openssl pkcs12 -export -inkey server.key -in server.crt -passout pass:root -out /out/server.pfx
 
       - name: Login DockerHub
         uses: docker/login-action@v3
