@@ -13,11 +13,12 @@ WORKDIR /https
 COPY server.pfx .
 RUN chmod 755 server.pfx 
 
-USER $APP_UID
-WORKDIR /app
-
+USER root
 RUN mkdir /data
 RUN chown $APP_UID /data
+
+USER $APP_UID
+WORKDIR /app
 
 # Print dotnet version
 RUN dotnet --info
