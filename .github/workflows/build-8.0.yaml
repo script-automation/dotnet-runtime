@@ -7,6 +7,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'Dockerfile-8.0'
+    workflow_dispatch:
 
 env:
   VERSION: "18.0"
