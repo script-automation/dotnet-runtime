@@ -14,8 +14,6 @@ RUN apt-get update && \
 RUN mkdir -p /https /data /app/obj /app/wwwroot2 && \
     chown -R $APP_UID:$APP_UID /https /data /app
 
-RUN mkdir -p /https
-
 WORKDIR /https
 COPY --chown=$APP_UID:$APP_UID server.crt .
 COPY --chown=$APP_UID:$APP_UID server.key .

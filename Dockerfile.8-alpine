@@ -1,0 +1,40 @@
+#
+#   Stage 1 : Builder
+#
+FROM alpine:latest AS builder
+
+# $APP_UID (1654)
+RUN mkdir -p /https /data /app/obj /app/wwwroot2 && \
+    chown -R 1654:1654 /https /data /app
+
+#
+#   Stage 2 : Runtime
+#
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
+
+ENV ASPNETCORE_HTTP_PORTS=
+ENV ASPNETCORE_HTTPS_PORTS=8443
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.crt
+ENV ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/server.key
+
+USER root
+
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache icu-libs icu-data-full tzdata && \
+    rm -rf /var/cache/apk/*
+
+COPY --from=builder --chown=$APP_UID:$APP_UID /https /https
+COPY --from=builder --chown=$APP_UID:$APP_UID /data /data
+COPY --from=builder --chown=$APP_UID:$APP_UID /app /app
+
+WORKDIR /https
+COPY --chown=$APP_UID:$APP_UID server.crt .
+COPY --chown=$APP_UID:$APP_UID server.key .
+RUN chmod 644 server.crt && chmod 600 server.key
+
+WORKDIR /app
+
+USER $APP_UID
+
+EXPOSE $ASPNETCORE_HTTPS_PORTS

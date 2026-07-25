@@ -2,7 +2,7 @@ name: Build for 8.0
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '0 4,16 * * *'
   push:
     branches:
       - main
