@@ -12,10 +12,14 @@ RUN mkdir -p /https /data /app/obj /app/wwwroot2 && \
 #
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
 
-ENV ASPNETCORE_HTTP_PORTS=
-ENV ASPNETCORE_HTTPS_PORTS=8443
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.crt
-ENV ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/server.key
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8
+
+ENV ASPNETCORE_HTTP_PORTS= \
+    ASPNETCORE_HTTPS_PORTS=8443 \
+    ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.crt \
+    ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/server.key
 
 USER root
 

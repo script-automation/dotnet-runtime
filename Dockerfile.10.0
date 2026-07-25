@@ -1,9 +1,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 
-ENV ASPNETCORE_HTTP_PORTS=
-ENV ASPNETCORE_HTTPS_PORTS=8443
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.crt
-ENV ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/server.key
+ENV ASPNETCORE_HTTP_PORTS= \
+    ASPNETCORE_HTTPS_PORTS=8443 \
+    ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.crt \
+    ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/server.key
 
 USER root
 
