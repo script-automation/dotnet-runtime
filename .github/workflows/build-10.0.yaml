@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'Dockerfile-10.0'
-    workflow_dispatch:
+      - '.github/workflows/build-8.0.yaml'
 
 env:
   VERSION: "10.0"
@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build & Push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: false
