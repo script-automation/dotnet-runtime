@@ -4,10 +4,8 @@ on:
   schedule:
     - cron: '0 */12 * * *'
   push:
-    branches: [ "main" ]
-    paths:
-      - 'Dockerfile-10.0'
-      - '.github/workflows/build-8.0.yaml'
+    branches:
+      - main
 
 env:
   VERSION: "10.0"
