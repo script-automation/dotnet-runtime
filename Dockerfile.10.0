@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+
+ENV ASPNETCORE_HTTP_PORTS=
+ENV ASPNETCORE_HTTPS_PORTS=8443
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=root
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.pfx
+
+RUN mkdir -p /https
+WORKDIR /https
+
+COPY server.pfx .
+RUN chmod 755 server.pfx 
+
+USER root
+RUN mkdir /data && chown $APP_UID /data
+
+WORKDIR /app
+RUN mkdir obj && chown $APP_UID obj
+RUN mkdir wwwroot2 && chown $APP_UID wwwroot2
+
+USER $APP_UID
+
+RUN dotnet --info
+
+EXPOSE $ASPNETCORE_HTTPS_PORTS
