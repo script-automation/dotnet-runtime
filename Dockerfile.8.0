@@ -5,24 +5,24 @@ ENV ASPNETCORE_HTTPS_PORTS=8443
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.crt
 ENV ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/server.key
 
-RUN mkdir -p /https
-WORKDIR /https
+USER root
 
+RUN apt-get update && \
+    apt-get upgrade -y --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /https /data /app/obj /app/wwwroot2 && \
+    chown -R $APP_UID:$APP_UID /https /data /app
+
+RUN mkdir -p /https
+
+WORKDIR /https
 COPY --chown=$APP_UID:$APP_UID server.crt .
 COPY --chown=$APP_UID:$APP_UID server.key .
-
-RUN chmod 644 server.crt
-RUN chmod 600 server.key
-
-USER root
-RUN mkdir /data && chown $APP_UID /data
+RUN chmod 644 server.crt && chmod 600 server.key
 
 WORKDIR /app
-RUN mkdir obj && chown $APP_UID obj
-RUN mkdir wwwroot2 && chown $APP_UID wwwroot2
 
 USER $APP_UID
-
-RUN dotnet --info
 
 EXPOSE $ASPNETCORE_HTTPS_PORTS
